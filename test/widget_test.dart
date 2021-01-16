@@ -27,7 +27,8 @@ void main() {
   //   expect(find.text('0'), findsNothing);
   //   expect(find.text('1'), findsOneWidget);
   // });
-  String aa = 'abcdefg';
+  String aa = '46';
+  double ss = 43.4;
 
-  print(aa.replaceRange(1, 3, '11'));
+  print('floor = ${ss.floor()}, ceil = ${ss.ceil()}');
 }

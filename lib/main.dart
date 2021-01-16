@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:surtr_tw/component/route.dart';
+import 'package:surtr_tw/bindings/splash_binding.dart';
+import 'package:surtr_tw/components/app_pages.dart';
+import 'package:surtr_tw/dependency_injection.dart';
 import 'package:surtr_tw/pages/splash/page_splash.dart';
-import 'package:surtr_tw/repository/twitter.dart';
-import 'package:surtr_tw/app_config.dart';
+import 'package:surtr_tw/repositories/twitter_reposity.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // 初始化 Logger
   _initLogger();
+  // 依赖注入
+  await DependencyInjection.init();
   // 状态栏颜色
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(statusBarColor: Color(0xFFeaeaea)));
-  runApp(PageSplash(
-    futures: [
-      // SharedPreferences.getInstance()
-      // initializeAppConfig()
-      appConfig.loadAppConfig()
-    ],
-    builder: (context, data) {
-      if (data[0] == true) {
-        twitterRepository = TwitterRepository();
-      }
-      return MyApp();
-    },
-  ));
+  runApp(MyApp());
 }
 
 _initLogger() {
@@ -40,11 +33,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPaintSizeEnabled = false;
     return OverlaySupport(
-      child: MaterialApp(
+      child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'SurTW',
-        routes: routes,
-        onGenerateRoute: routeFactory,
+        initialRoute: '/',
+        // routes: routes,
+        getPages: pages,
+        home: SplashPage(),
+        initialBinding: SplashBinding(),
         theme: ThemeData(
           appBarTheme: AppBarTheme(elevation: 0),
           primaryColor: Colors.white,

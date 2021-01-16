@@ -5,15 +5,11 @@ import 'package:yaml/yaml.dart';
 
 final Logger _log = Logger('AppConfig');
 
-AppConfig appConfig = AppConfig._();
-
 // 加载 app_config 到 [AppConfigData]
 class AppConfig {
-  AppConfig._();
+  Future<AppConfigData> init() async {
+    AppConfigData data;
 
-  AppConfigData data;
-
-  Future<bool> loadAppConfig() async {
     _log.fine('loading app config');
 
     try {
@@ -32,7 +28,6 @@ class AppConfig {
         throw Exception('Twitter api key or secret is empty.');
       } else {
         data = _appConfigData;
-        return true;
       }
     } catch (e, stacktrace) {
       _log.severe(
@@ -48,7 +43,7 @@ class AppConfig {
         stacktrace,
       );
     }
-    return false;
+    return data;
   }
 }
 

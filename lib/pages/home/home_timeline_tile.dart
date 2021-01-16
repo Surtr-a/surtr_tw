@@ -6,12 +6,14 @@ import 'package:dart_twitter_api/api/tweets/data/tweet.dart';
 import 'package:dart_twitter_api/api/users/data/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:logging/logging.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:surtr_tw/component/utils/utils.dart';
-import 'package:surtr_tw/pages/main/simple_list_tile.dart';
+import 'package:surtr_tw/components/utils/utils.dart';
+import 'package:surtr_tw/pages/home/simple_list_tile.dart';
 
 final Logger _log = Logger('HomeTimelineTile');
+
+enum Hyperlinks { mention, tag, url }
 
 class TweetListTile extends StatelessWidget {
   TweetListTile(this.context, this.tweet, this.isFirst)
@@ -65,53 +67,111 @@ class TweetListTile extends StatelessWidget {
 
   // 推文正文
   Widget get _contentText {
-    var isTag = Map<int, bool>();
-
+    // tag 和 url 的开始下标
+    var hyperlinks = Map<int, Hyperlinks>();
+    // tag 和 url 的截止下标
     var tagQueue = Queue<int>();
     var urlQueue = Queue<int>();
+    var mentionQueue = Queue<int>();
     String fullText = sourceTweet.fullText;
+    // 字符差值
+    int diff = fullText.length - fullText.runes.length;
     // 正文截断
-    fullText = fullText.substring(
-        sourceTweet.displayTextRange[0], sourceTweet.displayTextRange[1]);
+    fullText = fullText.substring(sourceTweet.displayTextRange[0],
+        sourceTweet.displayTextRange[1] + diff);
+
+    // 替换 url 后的实际结束下标
+    int lastMark = 0;
     for (int i = 0; i < sourceTweet.entities.urls.length; ++i) {
+      String url = sourceTweet.entities.urls[i].url;
+      String displayUrl = sourceTweet.entities.urls[i].displayUrl;
       // url 替换
-      fullText = fullText.replaceRange(
-          sourceTweet.entities.urls[i].indices[0],
-          sourceTweet.entities.urls[i].indices[1],
-          sourceTweet.entities.urls[i].displayUrl);
-      // url indexes
-      isTag.addAll({sourceTweet.entities.urls[i].indices[0]: false});
-      urlQueue.add(sourceTweet.entities.urls[i].indices[0] +
-          sourceTweet.entities.urls[i].displayUrl.length);
+      int curStartIndex = fullText.indexOf(url, lastMark);
+      if (curStartIndex != -1) {
+        fullText = fullText.replaceRange(
+            curStartIndex, curStartIndex + url.length, displayUrl);
+        lastMark = curStartIndex + displayUrl.length;
+        // url indexes
+        hyperlinks.addAll({curStartIndex: Hyperlinks.url});
+        urlQueue.add(curStartIndex + displayUrl.length);
+      }
     }
+
+    lastMark = 0;
+    for (int i = 0; i < sourceTweet.entities.userMentions.length; ++i) {
+      String mention = sourceTweet.entities.userMentions[i].screenName;
+      int curStartIndex = fullText.indexOf('@$mention', lastMark);
+      if (curStartIndex != -1) {
+        lastMark = curStartIndex + mention.length + 1;
+        hyperlinks.addAll({curStartIndex: Hyperlinks.mention});
+        mentionQueue.add(curStartIndex + mention.length + 1);
+      }
+    }
+
+    // 上次标记 Tag 的结束下标
+    lastMark = 0;
     // tag indexes
     for (int i = 0; i < sourceTweet.entities.hashtags.length; ++i) {
-      isTag.addAll({sourceTweet.entities.hashtags[i].indices[0]: true});
-      tagQueue.add(sourceTweet.entities.hashtags[i].indices[1]);
+      String tag = sourceTweet.entities.hashtags[i].text;
+      int curStartIndex = fullText.indexOf('#$tag', lastMark);
+      if (curStartIndex != -1) {
+        lastMark = curStartIndex + tag.length + 1;
+        hyperlinks.addAll({curStartIndex: Hyperlinks.tag});
+        tagQueue.add(curStartIndex + tag.length + 1);
+      }
     }
-    var sortedKey = isTag.keys.toList()..sort();
+    var sortedKey = hyperlinks.keys.toList()..sort();
 
-    // _log.fine('-------------------${fullText.length}');
-    // return Text(
-    //   fullText,
-    //   maxLines: 20,
-    //   style: TextStyleManager.black_23,
-    // );
-    int last = 0;
-    List<TextSpan> spanList;
-    sortedKey.map((int index) {
-      spanList.addAll([
-        if (index != last) _buildCommonText(fullText.substring(last, index)),
-        isTag[index]
-            ? _buildTagText(
-                fullText.substring(index, last = tagQueue.removeFirst()))
-            : _buildUrlText(
-                fullText.substring(index, last = urlQueue.removeFirst())),
-        if (tagQueue.isEmpty && urlQueue.isEmpty && last != fullText.length)
-          _buildCommonText(fullText.substring(last, fullText.length))
-      ]);
-    });
+    // 最后标记的 index
+    lastMark = 0;
+    var spanList = List<TextSpan>();
+    if (sortedKey.length != 0) {
+      for (int index in sortedKey) {
+        // 绘制上一个 hyperlinks 到 这个 hyperlinks 之间的内容
+        if (index != lastMark)
+          spanList.add(_buildCommonText(fullText.substring(lastMark, index)));
+        switch (hyperlinks[index]) {
+          case Hyperlinks.tag:
+            spanList.add(_buildTagText(
+                fullText.substring(index, lastMark = tagQueue.removeFirst())));
+            break;
+          case Hyperlinks.mention:
+            spanList.add(_buildMentionText(fullText.substring(
+                index, lastMark = mentionQueue.removeFirst())));
+            break;
+          case Hyperlinks.url:
+            spanList.add(_buildUrlText(
+                fullText.substring(index, lastMark = urlQueue.removeFirst())));
+            break;
+        }
+        // 没有 hyperlinks 需要绘制直接绘制剩下的文本内容
+        if (tagQueue.isEmpty &&
+            urlQueue.isEmpty &&
+            mentionQueue.isEmpty &&
+            lastMark != fullText.length)
+          spanList.add(
+              _buildCommonText(fullText.substring(lastMark, fullText.length)));
+      }
+    } else {
+      spanList.add(_buildCommonText(fullText));
+    }
     return Text.rich(TextSpan(children: spanList));
+  }
+
+  // 计算当前下标
+  int getCurrentIndex(int index, String text, int maxDisplayIndex) {
+    double position = (text.length - 1) * index / maxDisplayIndex;
+    int curIndex;
+    if (position > position.floor())
+      curIndex = position.ceil();
+    else
+      curIndex = position.toInt();
+    try {
+      text.substring(0, curIndex);
+    } catch (e) {
+      ++curIndex;
+    }
+    return curIndex;
   }
 
   TextSpan _buildCommonText(String text) {
@@ -129,6 +189,13 @@ class TweetListTile extends StatelessWidget {
   }
 
   TextSpan _buildTagText(String text) {
+    return TextSpan(
+      text: text,
+      style: TextStyleManager.blue_23,
+    );
+  }
+
+  TextSpan _buildMentionText(String text) {
     return TextSpan(
       text: text,
       style: TextStyleManager.blue_23,
@@ -261,58 +328,53 @@ class TweetListTile extends StatelessWidget {
   }
 
   Future<Void> _showBottomSheet(Tweet tweet) {
+    User user = User.fromJson(isRetweeted
+        ? tweet.retweetedStatus.user.toJson()
+        : tweet.user.toJson());
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
-    Future<void> future = showMaterialModalBottomSheet<void>(
-        context: context,
-        duration: Duration(milliseconds: 200),
-        builder: (BuildContext context) {
-          User user = User.fromJson(isRetweeted
-              ? tweet.retweetedStatus.user.toJson()
-              : tweet.user.toJson());
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 5,
-                width: 32,
-                margin: EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(
-                    color: Color(0xFFE5EDF0),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
+    Future<void> future = Get.bottomSheet<void>(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 5,
+              width: 32,
+              margin: EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                  color: Color(0xFFE5EDF0),
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+            ),
+            SimpleListTile(
+              leading: Icon(Icons.sentiment_dissatisfied_rounded),
+              title: Text(
+                'Not interesting in this Tweet',
+                style: TextStyleManager.black_47,
               ),
-              SimpleListTile(
-                leading: Icon(Icons.sentiment_dissatisfied_rounded),
-                title: Text(
-                  'Not interesting in this Tweet',
-                  style: TextStyleManager.black_47,
-                ),
-              ),
-              SimpleListTile(
-                leading: Icon(Icons.cancel_outlined),
-                title: Text('Unfollow @${user.screenName}',
-                    style: TextStyleManager.black_47),
-              ),
-              SimpleListTile(
-                leading: Icon(Icons.volume_off_outlined),
-                title: Text('Mute @${user.screenName}',
-                    style: TextStyleManager.black_47),
-              ),
-              SimpleListTile(
-                leading: Icon(Icons.block),
-                title: Text('Block @${user.screenName}',
-                    style: TextStyleManager.black_47),
-              ),
-              SimpleListTile(
-                leading: Icon(Icons.flag_outlined),
-                title: Text('Report Tweet', style: TextStyleManager.black_47),
-              ),
-            ],
-          );
-        },
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topRight: Radius.circular(12), topLeft: Radius.circular(12))));
+            ),
+            SimpleListTile(
+              leading: Icon(Icons.cancel_outlined),
+              title: Text('Unfollow @${user.screenName}',
+                  style: TextStyleManager.black_47),
+            ),
+            SimpleListTile(
+              leading: Icon(Icons.volume_off_outlined),
+              title: Text('Mute @${user.screenName}',
+                  style: TextStyleManager.black_47),
+            ),
+            SimpleListTile(
+              leading: Icon(Icons.block),
+              title: Text('Block @${user.screenName}',
+                  style: TextStyleManager.black_47),
+            ),
+            SimpleListTile(
+              leading: Icon(Icons.flag_outlined),
+              title: Text('Report Tweet', style: TextStyleManager.black_47),
+            ),
+          ],
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16))),
+        backgroundColor: Colors.white);
     future.then((value) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
           .copyWith(statusBarColor: Color(0xFFeaeaea)));

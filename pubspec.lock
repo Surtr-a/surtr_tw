@@ -70,7 +70,7 @@ packages:
       name: dart_twitter_api
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.4"
+    version: "0.3.5"
   fake_async:
     dependency: transitive
     description:
@@ -107,6 +107,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.24.0"
   http:
     dependency: transitive
     description:
@@ -163,20 +170,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0+1"
-  nested:
-    dependency: transitive
-    description:
-      name: nested
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.0.4"
   oauth1:
     dependency: transitive
     description:
       name: oauth1
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   overlay_support:
     dependency: "direct main"
     description:
@@ -240,13 +240,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.13"
-  provider:
-    dependency: "direct main"
-    description:
-      name: provider
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.3.2+2"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -372,5 +365,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.10.0-110 <2.11.0"
-  flutter: ">=1.16.0 <2.0.0"
+  dart: ">=2.10.0 <2.11.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
