@@ -16,13 +16,12 @@ final Logger _log = Logger('HomeTimelineTile');
 enum Hyperlinks { mention, tag, url }
 
 class TweetListTile extends StatelessWidget {
-  TweetListTile(this.context, this.tweet, this.isFirst)
+  TweetListTile(this.tweet, this.isFirst)
       : isRetweeted = tweet.retweetedStatus != null,
         isQuoted = tweet.isQuoteStatus,
         sourceTweet =
             tweet.retweetedStatus == null ? tweet : tweet.retweetedStatus;
 
-  final BuildContext context;
   final Tweet tweet;
   final Tweet sourceTweet;
   final bool isFirst;
@@ -62,7 +61,7 @@ class TweetListTile extends StatelessWidget {
   }
 
   Widget get _userName {
-    return _buildUserName(sourceTweet.user.name, sourceTweet.user.screenName);
+    return _buildUserName(sourceTweet.user.name, sourceTweet.user.screenName, sourceTweet.createdAt);
   }
 
   // 推文正文
@@ -156,22 +155,6 @@ class TweetListTile extends StatelessWidget {
       spanList.add(_buildCommonText(fullText));
     }
     return Text.rich(TextSpan(children: spanList));
-  }
-
-  // 计算当前下标
-  int getCurrentIndex(int index, String text, int maxDisplayIndex) {
-    double position = (text.length - 1) * index / maxDisplayIndex;
-    int curIndex;
-    if (position > position.floor())
-      curIndex = position.ceil();
-    else
-      curIndex = position.toInt();
-    try {
-      text.substring(0, curIndex);
-    } catch (e) {
-      ++curIndex;
-    }
-    return curIndex;
   }
 
   TextSpan _buildCommonText(String text) {
@@ -320,10 +303,10 @@ class TweetListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildUserName(String name, String screenName) {
+  Widget _buildUserName(String name, String screenName, DateTime createAt) {
     return Text.rich(TextSpan(children: [
       TextSpan(text: name, style: TextStyleManager.black_35_b),
-      TextSpan(text: ' @$screenName', style: TextStyleManager.grey_35),
+      TextSpan(text: ' @$screenName · ${TimeUtil.getTimeIntervalStr(createAt)}', style: TextStyleManager.grey_35),
     ]));
   }
 
