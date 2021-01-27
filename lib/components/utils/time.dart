@@ -19,13 +19,13 @@ class TimeUtil {
     } else if (days < 7) {
       timeIntervalStr = '${days}d';
     } else {
-      timeIntervalStr = '${createAt.day} ${_month[createAt.month]}';
+      timeIntervalStr = '${createAt.day} ${month[createAt.month]}';
     }
 
     return timeIntervalStr;
   }
 
-  static const Map<int, String> _month = {
+  static const Map<int, String> month = {
     01: 'Jan',
     02: 'Feb',
     03: 'Mar',

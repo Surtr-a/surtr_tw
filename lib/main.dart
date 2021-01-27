@@ -6,9 +6,9 @@ import 'package:logging/logging.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:surtr_tw/bindings/splash_binding.dart';
 import 'package:surtr_tw/components/app_pages.dart';
+import 'package:surtr_tw/components/utils/utils.dart';
 import 'package:surtr_tw/dependency_injection.dart';
 import 'package:surtr_tw/pages/splash/page_splash.dart';
-import 'package:surtr_tw/repositories/twitter_reposity.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,17 +37,17 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'SurTW',
         initialRoute: '/',
-        // routes: routes,
         getPages: pages,
         home: SplashPage(),
         initialBinding: SplashBinding(),
         theme: ThemeData(
           appBarTheme: AppBarTheme(elevation: 0),
           primaryColor: Colors.white,
-          accentColor: Colors.blue,
+          accentColor: CustomColor.TBlue,
           unselectedWidgetColor: Colors.grey,
+          highlightColor: CustomColor.highlightBlue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          dividerColor: Colors.grey
+          dividerColor: Color(0xFFCCD7DD),
         ),
       ),
     );

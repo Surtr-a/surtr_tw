@@ -16,7 +16,7 @@ final Logger _log = Logger('HomeTimelineTile');
 enum Hyperlinks { mention, tag, url }
 
 class TweetListTile extends StatelessWidget {
-  TweetListTile(this.tweet, this.isFirst)
+  TweetListTile(this.tweet, this.isFirst, this.isDetail, {this.replyScreenName})
       : isRetweeted = tweet.retweetedStatus != null,
         isQuoted = tweet.isQuoteStatus,
         sourceTweet =
@@ -27,6 +27,127 @@ class TweetListTile extends StatelessWidget {
   final bool isFirst;
   final bool isRetweeted;
   final bool isQuoted;
+  final bool isDetail;
+  final String replyScreenName;
+
+  @override
+  Widget build(BuildContext context) {
+    return isDetail
+        ? Padding(
+            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
+            child: Column(
+              children: [
+                Padding(
+                  padding: isRetweeted ? EdgeInsets.fromLTRB(64, 4, 0, 4) : EdgeInsets.zero,
+                  child: Row(
+                    children: [
+                      _typeIcon,
+                      _typeWord,
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [_headImage, _title],
+                  mainAxisSize: MainAxisSize.max,
+                ),
+                _contentText,
+                // Padding(
+                //   padding: EdgeInsets.symmetric(vertical: 4),
+                //   child: Text(
+                //     'Translate Tweet',
+                //     style: TextStyleManager.blue_3,
+                //   ),
+                // ),
+                _media,
+                _time,
+                Divider(indent: 4, endIndent: 4, thickness: .6,),
+                _shareData,
+                Divider(indent: 4, endIndent: 4, thickness: .6,),
+                _shareIcons,
+              ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+            ),
+          )
+        : Container(
+            decoration: BoxDecoration(
+                border: Border(top: BorderSide(width: isFirst? 0 : .6, color: CustomColor.DivGrey))),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(12, isFirst ? 8 : 4, 4, 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Column(children: [_typeIcon, _headImage]),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _typeWord,
+                          _title,
+                          if (replyScreenName != null) _target,
+                          _contentText,
+                          _media,
+                          _options
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+  }
+
+  Widget get _target {
+    return Text.rich(TextSpan(
+      children: [
+        TextSpan(text: 'Replying to ', style: TextStyleManager.grey_35),
+        TextSpan(text: '@$replyScreenName', style: TextStyleManager.blue_23)
+      ],
+    ), overflow: TextOverflow.ellipsis, maxLines: 1,);
+  }
+
+  Widget get _shareIcons {
+    return Row(
+      children: [
+        Icon(Icons.mode_comment_outlined, size: 24, color: Colors.grey),
+        Icon(Icons.repeat_outlined, size: 24, color: Colors.grey),
+        Icon(Icons.favorite_outline, size: 24, color: Colors.grey),
+        Icon(Icons.share_outlined, size: 24, color: Colors.grey)
+      ],
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    );
+  }
+
+  Widget get _shareData {
+    return Text.rich(TextSpan(
+      children: [
+        TextSpan(text: sourceTweet.retweetCount == null ? '0' : sourceTweet.retweetCount.toString(), style: TextStyleManager.black_35_b),
+        TextSpan(text: ' Retweets   ', style: TextStyleManager.grey_35),
+        TextSpan(text: sourceTweet.quoteCount == null ? '0' : sourceTweet.quoteCount.toString(), style: TextStyleManager.black_35_b),
+        TextSpan(text: ' Quote Tweets   ', style: TextStyleManager.grey_35),
+        TextSpan(text: sourceTweet.favoriteCount == null ? '0' : sourceTweet.favoriteCount.toString(), style: TextStyleManager.black_35_b),
+        TextSpan(text: ' Likes   ', style: TextStyleManager.grey_35),
+      ]
+    ));
+  }
+
+  Widget get _time {
+    DateTime createAt = sourceTweet.createdAt;
+    int startIndex = sourceTweet.source.indexOf('>') + 1;
+    int endIndex = sourceTweet.source.indexOf('<\/a>');
+    String from = sourceTweet.source.substring(startIndex, endIndex);
+    return Text.rich(TextSpan(children: [
+      TextSpan(
+          text:
+              '${createAt.hour}:${createAt.minute} · ${createAt.day} ${TimeUtil.month[createAt.month]} ${createAt.year.toString().substring(2, 4)} · ',
+          style: TextStyleManager.grey_35),
+      TextSpan(text: from, style: TextStyleManager.blue_23)
+    ]));
+  }
 
   Widget get _typeIcon {
     if (isRetweeted) {
@@ -41,7 +162,7 @@ class TweetListTile extends StatelessWidget {
   Widget get _typeWord {
     if (isRetweeted) {
       return Text(
-        '${tweet.user.screenName} Retweeted',
+        '${tweet.user.name} Retweeted',
         style: TextStyleManager.grey_15,
       );
     } else {
@@ -55,13 +176,43 @@ class TweetListTile extends StatelessWidget {
     String originalVariant = obtainedUrl.replaceAll('_normal.', '.');
 
     return Padding(
-      padding: EdgeInsets.only(top: 4),
+      padding: EdgeInsets.only(top: 6),
       child: _buildHeadImage(originalVariant),
     );
   }
 
   Widget get _userName {
-    return _buildUserName(sourceTweet.user.name, sourceTweet.user.screenName, sourceTweet.createdAt);
+    return isDetail
+        ? Text(
+            '${sourceTweet.user.name} ',
+            style: TextStyleManager.black_35_b,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          )
+        : Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                    text: '${sourceTweet.user.name} ',
+                    style: TextStyleManager.black_35_b),
+                TextSpan(
+                    text:
+                        '@${sourceTweet.user.screenName} · ${TimeUtil.getTimeIntervalStr(sourceTweet.createdAt)}',
+                    style: TextStyleManager.grey_35)
+              ],
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          );
+  }
+
+  Widget get _screenName {
+    return Text(
+      '@${sourceTweet.user.screenName}',
+      style: TextStyleManager.grey_35,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+    );
   }
 
   // 推文正文
@@ -128,11 +279,11 @@ class TweetListTile extends StatelessWidget {
       for (int index in sortedKey) {
         // 绘制上一个 hyperlinks 到 这个 hyperlinks 之间的内容
         if (index != lastMark)
-          spanList.add(_buildCommonText(fullText.substring(lastMark, index)));
+          spanList.add(_buildCommonText(fullText.substring(lastMark, index), isDetail));
         switch (hyperlinks[index]) {
           case Hyperlinks.tag:
             spanList.add(_buildTagText(
-                fullText.substring(index, lastMark = tagQueue.removeFirst())));
+                fullText.substring(index, lastMark = tagQueue.removeFirst()), isDetail));
             break;
           case Hyperlinks.mention:
             spanList.add(_buildMentionText(fullText.substring(
@@ -140,7 +291,7 @@ class TweetListTile extends StatelessWidget {
             break;
           case Hyperlinks.url:
             spanList.add(_buildUrlText(
-                fullText.substring(index, lastMark = urlQueue.removeFirst())));
+                fullText.substring(index, lastMark = urlQueue.removeFirst()), isDetail));
             break;
         }
         // 没有 hyperlinks 需要绘制直接绘制剩下的文本内容
@@ -149,39 +300,39 @@ class TweetListTile extends StatelessWidget {
             mentionQueue.isEmpty &&
             lastMark != fullText.length)
           spanList.add(
-              _buildCommonText(fullText.substring(lastMark, fullText.length)));
+              _buildCommonText(fullText.substring(lastMark, fullText.length), isDetail));
       }
     } else {
-      spanList.add(_buildCommonText(fullText));
+      spanList.add(_buildCommonText(fullText, isDetail));
     }
-    return Text.rich(TextSpan(children: spanList));
+    return Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text.rich(TextSpan(children: spanList)));
   }
 
-  TextSpan _buildCommonText(String text) {
+  TextSpan _buildCommonText(String text, bool isDetail) {
     return TextSpan(
       text: text,
-      style: TextStyleManager.black_23,
+      style: isDetail ? TextStyleManager.black_83 : TextStyleManager.black_23,
     );
   }
 
-  TextSpan _buildUrlText(String text) {
+  TextSpan _buildUrlText(String text, bool isDetail) {
     return TextSpan(
       text: text,
-      style: TextStyleManager.blue_23,
+      style: isDetail ? TextStyleManager.blue_83 : TextStyleManager.blue_23,
     );
   }
 
-  TextSpan _buildTagText(String text) {
+  TextSpan _buildTagText(String text, bool isDetail) {
     return TextSpan(
       text: text,
-      style: TextStyleManager.blue_23,
+      style: isDetail ? TextStyleManager.blue_83 : TextStyleManager.blue_23,
     );
   }
 
   TextSpan _buildMentionText(String text) {
     return TextSpan(
       text: text,
-      style: TextStyleManager.blue_23,
+      style: isDetail ? TextStyleManager.blue_83 : TextStyleManager.blue_23,
     );
   }
 
@@ -190,7 +341,7 @@ class TweetListTile extends StatelessWidget {
       String mediaUrl = sourceTweet.entities.media[0].mediaUrlHttps;
 
       if (sourceTweet.entities.media[0].type == 'photo') {
-        return _buildContentImage(mediaUrl);
+        return _buildContentImage(mediaUrl, isDetail);
       } else {
         return Container();
       }
@@ -220,48 +371,47 @@ class TweetListTile extends StatelessWidget {
   }
 
   Widget get _title {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _userName,
-        IconButton(
-          iconSize: 18,
-          color: Colors.grey,
-          icon: Icon(Icons.keyboard_arrow_down),
-          onPressed: () {
-            _showBottomSheet(sourceTweet);
-          },
-          padding: EdgeInsets.all(2),
-          constraints: BoxConstraints(minHeight: 0, minWidth: 0),
-          splashRadius: 24,
-        )
-      ],
-    );
+    return isDetail
+        ? Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(12, 4, 0, 4),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      _userName,
+                      _extension,
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  _screenName
+                ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+          )
+        : Row(
+            children: [
+              Expanded(
+                child: _userName,
+              ),
+              _extension
+            ],
+            mainAxisSize: MainAxisSize.max,
+          );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border(top: BorderSide(width: .3, color: Colors.grey))),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(12, isFirst ? 8 : 4, 4, 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(children: [_typeIcon, _headImage]),
-            Flexible(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_typeWord, _title, _contentText, _media, _options],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+  Widget get _extension {
+    return IconButton(
+      iconSize: 20,
+      color: Colors.grey,
+      icon: Icon(Icons.keyboard_arrow_down),
+      onPressed: () {
+        _showBottomSheet(sourceTweet);
+      },
+      padding: EdgeInsets.all(0),
+      constraints: BoxConstraints(minHeight: 0, minWidth: 0),
+      splashRadius: 24,
     );
   }
 
@@ -288,26 +438,19 @@ class TweetListTile extends StatelessWidget {
     ));
   }
 
-  Widget _buildContentImage(String url) {
+  Widget _buildContentImage(String url, bool isDetail) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: isDetail ? 16 : 8),
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         child: Image.network(
           url,
-          height: 180,
+          height: isDetail ? 292 : 180,
           width: double.infinity,
           fit: BoxFit.cover,
         ),
       ),
     );
-  }
-
-  Widget _buildUserName(String name, String screenName, DateTime createAt) {
-    return Text.rich(TextSpan(children: [
-      TextSpan(text: name, style: TextStyleManager.black_35_b),
-      TextSpan(text: ' @$screenName · ${TimeUtil.getTimeIntervalStr(createAt)}', style: TextStyleManager.grey_35),
-    ]));
   }
 
   Future<Void> _showBottomSheet(Tweet tweet) {
@@ -356,7 +499,9 @@ class TweetListTile extends StatelessWidget {
             ),
           ],
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16))),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16), topRight: Radius.circular(16))),
         backgroundColor: Colors.white);
     future.then((value) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark

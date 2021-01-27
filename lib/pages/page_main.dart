@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:logging/logging.dart';
+import 'package:surtr_tw/components/utils/color.dart';
 import 'package:surtr_tw/controllers/main_controller.dart';
 import 'package:surtr_tw/material/drawer.dart';
 import 'package:surtr_tw/pages/home/page_home.dart';
 import 'package:surtr_tw/pages/message/page_messages.dart';
 import 'package:surtr_tw/pages/notification/page_notifications.dart';
-import 'package:surtr_tw/pages/search/page_search.dart';
+import 'package:surtr_tw/pages/trends/page_trends.dart';
 
 // final Logger _log = Logger('MainPage');
 final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
 
 class MainPage extends GetView<MainController> {
-  final List<Widget> _children = [HomePage(_globalKey), SearchPage(), NotificationsPage(), MessagesPage()];
+  final List<Widget> _children = [HomePage(_globalKey), TrendsPage(), NotificationsPage(), MessagesPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +20,11 @@ class MainPage extends GetView<MainController> {
       key: _globalKey,
       body: Container(
         decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(width: .3, color: Colors.grey))),
-        child: Builder(
-          builder: (BuildContext context) {
-            return IndexedStack(
-              index: controller.currentIndex,
-              children: _children,
-            );
-          },
-        ),
+            border: Border(bottom: BorderSide(width: .6, color: CustomColor.DivGrey))),
+        child: Obx(() => IndexedStack(
+          index: controller.currentIndex.value,
+          children: _children,
+        )),
       ),
       bottomNavigationBar: _buildBottomNavBar,
       drawer: FlexibleDrawer(
@@ -42,7 +38,7 @@ class MainPage extends GetView<MainController> {
   get _buildBottomNavBar {
     return BottomNavigationBar(
       elevation: 0,
-      currentIndex: controller.currentIndex,
+      currentIndex: controller.currentIndex.value,
       type: BottomNavigationBarType.fixed,
       iconSize: 28,
       selectedItemColor: Theme.of(Get.context).accentColor,
@@ -57,9 +53,10 @@ class MainPage extends GetView<MainController> {
             label: 'Messages', icon: Icon(Icons.email_outlined)),
       ],
       onTap: (index) {
-        if (controller.currentIndex != index) {
-          controller.changeIndex(index);
-        }
+        // if (controller.currentIndex != index) {
+        //   controller.changeIndex(index);
+        // }
+        controller.currentIndex.value = index;
       },
     );
   }

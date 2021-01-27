@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:surtr_tw/components/app_routes.dart';
+import 'package:surtr_tw/components/utils/color.dart';
 import 'package:surtr_tw/controllers/home_controller.dart';
-import 'package:surtr_tw/material/home_timeline_tile.dart';
+import 'package:surtr_tw/material/tweet_list_tile.dart';
 import 'package:surtr_tw/repositories/twitter_reposity.dart';
 
 // final Logger _log = Logger('HomePage');
@@ -18,27 +20,36 @@ class HomePage extends StatelessWidget {
     return GetBuilder<HomeController>(
         init: HomeController(),
         builder: (controller) {
-          return CustomScrollView(
-            slivers: [
-              _appBar,
-              SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                return GestureDetector(
-                    onTap: () => Get.toNamed(Routes.TWEET_DETAIL, arguments: controller.homeTimeline[index]),
-                    child: TweetListTile(
-                        controller.homeTimeline[index], index == 0));
-                // return Geni
-              }, childCount: controller.homeTimeline.length))
-            ],
-          );
+          return NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[_appBar, SliverToBoxAdapter(child: Divider(color: CustomColor.DivGrey, thickness: .6, height: .6))];
+              },
+              body: MediaQuery.removePadding(
+                context: Get.context,
+                removeTop: true,
+                child: Scrollbar(
+                  thickness: 4,
+                  child: SmartRefresher(
+                    header: MaterialClassicHeader(color: CustomColor.TBlue,),
+                    controller: controller.refreshController,
+                    onRefresh: controller.onRefresh,
+                    child: ListView.builder(
+                        itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                          onTap: () => Get.toNamed(Routes.TWEET_DETAIL,
+                              arguments: controller.homeTimeline[index]),
+                          child: TweetListTile(
+                              controller.homeTimeline[index], index == 0, false));
+                    }, itemCount: controller.homeTimeline.length),
+                  ),
+                ),
+              ), floatHeaderSlivers: true);
         });
   }
 
   get _appBar {
     return SliverAppBar(
-      elevation: .8,
-      shadowColor: Colors.grey,
       floating: true,
       title: Text(
         'Twitter',

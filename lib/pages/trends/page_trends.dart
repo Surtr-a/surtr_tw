@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-class SearchPage extends StatelessWidget {
-
+class TrendsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Container();
   }
 }
