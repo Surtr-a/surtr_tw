@@ -1,7 +1,7 @@
 import 'package:dart_twitter_api/api/tweets/data/tweet.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:surtr_tw/repositories/twitter_reposity.dart';
+import 'package:surtr_tw/repositories/twitter_repository.dart';
 
 class HomeController extends GetxController {
   final TwitterRepository _twitterRepository = Get.find<TwitterRepository>();

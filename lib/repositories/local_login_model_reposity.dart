@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String _key_current_login_model = 'current_kogin_model';
+const String _key_current_login_model = 'current_login_model';
 
 final Logger _log = Logger('LocalLoginModelRepository');
 

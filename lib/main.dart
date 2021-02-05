@@ -47,7 +47,8 @@ class MyApp extends StatelessWidget {
           unselectedWidgetColor: Colors.grey,
           highlightColor: CustomColor.highlightBlue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          dividerColor: Color(0xFFCCD7DD),
+          dividerColor: CustomColor.DivGrey,
+          dividerTheme: DividerThemeData(space: .6, thickness: .6)
         ),
       ),
     );

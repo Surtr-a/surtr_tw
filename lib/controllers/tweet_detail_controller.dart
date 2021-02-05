@@ -1,7 +1,7 @@
 import 'package:dart_twitter_api/twitter_api.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
-import 'package:surtr_tw/repositories/twitter_reposity.dart';
+import 'package:surtr_tw/repositories/twitter_repository.dart';
 
 import '../twitter_api.dart';
 

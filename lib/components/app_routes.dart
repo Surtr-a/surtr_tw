@@ -3,4 +3,5 @@ abstract class Routes {
   static const MAIN = '/main';
   static const SPLASH = '/splash';
   static const TWEET_DETAIL = '/tweet_detail';
+  static const SEARCH = '/search';
 }

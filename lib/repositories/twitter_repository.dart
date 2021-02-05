@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dart_twitter_api/twitter_api.dart' as api;
+import 'package:dart_twitter_api/twitter_api.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:surtr_tw/twitter_api.dart';
@@ -29,5 +31,17 @@ class TwitterRepository {
     }
 
     return result;
+  }
+
+  Future<List<Trends>> loadTrends({@required int id, String exclude}) async {
+    return await twitterApi.trendsService
+        .place(id: id, exclude: exclude)
+        .catchError((e) => _log.severe(e.toString()));
+  }
+
+  Future<List<TrendLocation>> availableLocations() async {
+    return await twitterApi.trendsService
+        .available()
+        .catchError((e) => _log.severe(e.toString()));
   }
 }

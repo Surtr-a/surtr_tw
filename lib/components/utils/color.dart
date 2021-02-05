@@ -5,5 +5,7 @@ class CustomColor {
 
   static const Color DivGrey = Color(0xFFCCD7DD);
 
+  static const Color sGrey = Color(0xFFE7ECF0);
+
   static const Color highlightBlue = Color(0xFF8ACDF7);
 }

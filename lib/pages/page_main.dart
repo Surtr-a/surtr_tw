@@ -12,27 +12,28 @@ import 'package:surtr_tw/pages/trends/page_trends.dart';
 final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
 
 class MainPage extends GetView<MainController> {
-  final List<Widget> _children = [HomePage(_globalKey), TrendsPage(), NotificationsPage(), MessagesPage()];
+  final List<Widget> _children = [HomePage(_globalKey), TrendsPage(_globalKey), NotificationsPage(), MessagesPage()];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _globalKey,
-      body: Container(
-        decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(width: .6, color: CustomColor.DivGrey))),
-        child: Obx(() => IndexedStack(
-          index: controller.currentIndex.value,
-          children: _children,
-        )),
-      ),
-      bottomNavigationBar: _buildBottomNavBar,
-      drawer: FlexibleDrawer(
-        child: ListView(
-          children: [Text('sss')],
-        ),
-      ),
-    );
+    return Obx(() => Scaffold(
+          key: _globalKey,
+          body: Container(
+            decoration: BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(width: .6, color: CustomColor.DivGrey))),
+            child: IndexedStack(
+              index: controller.currentIndex.value,
+              children: _children,
+            ),
+          ),
+          bottomNavigationBar: _buildBottomNavBar,
+          drawer: FlexibleDrawer(
+            child: ListView(
+              children: [Text('sss')],
+            ),
+          ),
+        ));
   }
 
   get _buildBottomNavBar {
