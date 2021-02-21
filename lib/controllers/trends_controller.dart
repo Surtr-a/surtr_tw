@@ -1,6 +1,7 @@
 import 'package:dart_twitter_api/twitter_api.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:surtr_tw/repositories/local_search_history_repository.dart';
 import 'package:surtr_tw/repositories/twitter_repository.dart';
 
 // final Logger _log = Logger('TrendsController');

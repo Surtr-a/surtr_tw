@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
+import 'package:surtr_tw/controllers/trends_controller.dart';
+import 'package:surtr_tw/material/custom_search_delegate.dart';
+import 'package:surtr_tw/material/sliver_tab_bar_delegate.dart';
+import 'package:surtr_tw/material/search.dart' as s;
 import 'package:surtr_tw/pages/trends/body.dart';
 import 'package:surtr_tw/repositories/twitter_repository.dart';
 
 final Logger _log = Logger('TrendsPage');
 
-class TrendsPage extends StatelessWidget {
+class TrendsPage extends GetView<TrendsController> {
   final GlobalKey<ScaffoldState> _globalKey;
   final List<Tab> _tabs = <Tab>[
     Tab(child: Text('For you', style: TextStyle(fontSize: 16))),
@@ -34,7 +38,7 @@ class TrendsPage extends StatelessWidget {
               return <Widget>[
                 _appBar,
                 SliverPersistentHeader(
-                    delegate: _SliverTabBarDelegate(TabBar(
+                    delegate: SliverTabBarDelegate(TabBar(
                       tabs: _tabs,
                       labelColor: CustomColor.TBlue,
                       unselectedLabelColor: Colors.grey,
@@ -47,12 +51,12 @@ class TrendsPage extends StatelessWidget {
             body: TabBarView(
                 children: [1, 2, 3, 4, 5, 6]
                     .map((e) => e == 3
-                    ? Body()
-                    : Center(
-                  child: Text(
-                    'Unimplemented',
-                  ),
-                ))
+                        ? Body()
+                        : Center(
+                            child: Text(
+                              'Unimplemented',
+                            ),
+                          ))
                     .toList()),
             floatHeaderSlivers: true),
       ),
@@ -61,48 +65,43 @@ class TrendsPage extends StatelessWidget {
 
   Widget get _appBar {
     return SliverAppBar(
-      leading: Icon(Icons.menu, color: CustomColor.TBlue, size: 32,),
-      actions: [Padding(
-        padding: const EdgeInsets.only(right: 12),
-        child: Icon(Icons.settings, color: CustomColor.TBlue,),
-      )],
-      title: Container(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        width: double.infinity,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-            color: CustomColor.sGrey),
-        child: Text('Search Twitter', style: TextStyleManager.grey_35_s,),
+      leading: IconButton(
+        icon: Icon(
+          Icons.menu,
+          color: CustomColor.TBlue,
+          size: 32,
         ),
-      );
-  }
-}
-
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
-
-  _SliverTabBarDelegate(this.tabBar);
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      child: tabBar,
-      decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-              bottom: BorderSide(width: 0.6, color: CustomColor.DivGrey))),
+        onPressed: () {
+          _globalKey.currentState.openDrawer();
+        },
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Icon(
+            Icons.settings,
+            color: CustomColor.TBlue,
+          ),
+        )
+      ],
+      title: GestureDetector(
+        onTap: () async {
+          await s.showSearch(
+              context: Get.context,
+              delegate: CustomSearchDelegate());
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          width: double.infinity,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
+              color: CustomColor.sGrey),
+          child: Text(
+            'Search Twitter',
+            style: TextStyleManager.grey_35_s,
+          ),
+        ),
+      ),
     );
-  }
-
-  @override
-  double get maxExtent => tabBar.preferredSize.height;
-
-  @override
-  double get minExtent => tabBar.preferredSize.height;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
   }
 }

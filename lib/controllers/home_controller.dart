@@ -9,16 +9,16 @@ class HomeController extends GetxController {
   final RefreshController refreshController = RefreshController(initialRefresh: true);
 
   onRefresh() async {
-    List<Tweet> result = await _twitterRepository.homeTimeline();
-    if (result == null) {
+    List<Tweet> response = await _twitterRepository.homeTimeline();
+    if (response == null) {
       refreshController.refreshFailed();
       return;
     } else {
-      _homeTimeline.addAll(result);
+      _homeTimeline.addAll(response);
       update();
       refreshController.refreshCompleted();
     }
-    if (result.length == 0) {
+    if (response.length == 0) {
       refreshController.loadNoData();
     }
   }

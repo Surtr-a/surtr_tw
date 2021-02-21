@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const double _kMinCircularProgressIndicatorSize = 36.0;
-const int _kIndeterminateCircularDuration = 1333 * 2222 ~/ 10;
+const int _kIndeterminateCircularDuration = 1333 * 2222 ~/ 20;
 
 /// A base class for material design progress indicators.
 ///

@@ -13,10 +13,10 @@ import 'package:surtr_tw/pages/home/simple_list_tile.dart';
 
 final Logger _log = Logger('HomeTimelineTile');
 
-enum Hyperlinks { mention, tag, url }
+enum Hyperlinks { mention, tag, url, keyword }
 
 class TweetListTile extends StatelessWidget {
-  TweetListTile(this.tweet, this.isFirst, this.isDetail, {this.replyScreenName})
+  TweetListTile(this.tweet, this.isDetail, {this.replyScreenName, this.query})
       : isRetweeted = tweet.retweetedStatus != null,
         isQuoted = tweet.isQuoteStatus,
         sourceTweet =
@@ -24,11 +24,11 @@ class TweetListTile extends StatelessWidget {
 
   final Tweet tweet;
   final Tweet sourceTweet;
-  final bool isFirst;
   final bool isRetweeted;
   final bool isQuoted;
   final bool isDetail;
   final String replyScreenName;
+  final String query;
 
   @override
   Widget build(BuildContext context) {
@@ -51,54 +51,43 @@ class TweetListTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                 ),
                 _contentText,
-                // Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 4),
-                //   child: Text(
-                //     'Translate Tweet',
-                //     style: TextStyleManager.blue_3,
-                //   ),
-                // ),
                 _media,
                 _time,
-                Divider(indent: 4, endIndent: 4, thickness: .6,),
+                Divider(indent: 4, endIndent: 4, thickness: .6, height: 20,),
                 _shareData,
-                Divider(indent: 4, endIndent: 4, thickness: .6,),
+                Divider(indent: 4, endIndent: 4, thickness: .6, height: 20,),
                 _shareIcons,
               ],
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
             ),
           )
-        : Container(
-            decoration: BoxDecoration(
-                border: Border(top: BorderSide(width: isFirst? 0 : .6, color: CustomColor.DivGrey))),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(12, isFirst ? 8 : 4, 4, 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Column(children: [_typeIcon, _headImage]),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _typeWord,
-                          _title,
-                          if (replyScreenName != null) _target,
-                          _contentText,
-                          _media,
-                          _options
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
+        : Padding(
+          padding: EdgeInsets.fromLTRB(12, 4, 4, 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Column(children: [_typeIcon, _headImage]),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _typeWord,
+                      _title,
+                      if (replyScreenName != null) _target,
+                      _contentText,
+                      _media,
+                      _options
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
   }
 
   Widget get _target {
@@ -223,8 +212,9 @@ class TweetListTile extends StatelessWidget {
     var tagQueue = Queue<int>();
     var urlQueue = Queue<int>();
     var mentionQueue = Queue<int>();
+    var keywordQueue = Queue<int>();
     String fullText = sourceTweet.fullText;
-    // 字符差值
+    // 字符长度差值
     int diff = fullText.length - fullText.runes.length;
     // 正文截断
     fullText = fullText.substring(sourceTweet.displayTextRange[0],
@@ -270,6 +260,20 @@ class TweetListTile extends StatelessWidget {
         tagQueue.add(curStartIndex + tag.length + 1);
       }
     }
+    
+    // lastMark = 0;
+    // while (true) {
+    //   if (query == null) break;
+    //   int curStartIndex = fullText.indexOf(query, lastMark);
+    //   if (curStartIndex != -1) {
+    //     lastMark = curStartIndex + query.length + 1;
+    //     if (!hyperlinks.containsKey(curStartIndex)) {
+    //       hyperlinks.addAll({curStartIndex: Hyperlinks.keyword});
+    //       keywordQueue.add(curStartIndex + query.length);
+    //     }
+    //   } else break;
+    // }
+
     var sortedKey = hyperlinks.keys.toList()..sort();
 
     // 最后标记的 index
@@ -293,11 +297,15 @@ class TweetListTile extends StatelessWidget {
             spanList.add(_buildUrlText(
                 fullText.substring(index, lastMark = urlQueue.removeFirst()), isDetail));
             break;
+          case Hyperlinks.keyword:
+            spanList.add(_buildKeywordText(fullText.substring(index, lastMark = keywordQueue.removeFirst())));
+            break;
         }
         // 没有 hyperlinks 需要绘制直接绘制剩下的文本内容
         if (tagQueue.isEmpty &&
             urlQueue.isEmpty &&
             mentionQueue.isEmpty &&
+            keywordQueue.isEmpty &&
             lastMark != fullText.length)
           spanList.add(
               _buildCommonText(fullText.substring(lastMark, fullText.length), isDetail));
@@ -306,6 +314,13 @@ class TweetListTile extends StatelessWidget {
       spanList.add(_buildCommonText(fullText, isDetail));
     }
     return Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text.rich(TextSpan(children: spanList)));
+  }
+
+  TextSpan _buildKeywordText(String text) {
+    return TextSpan(
+      text: text,
+      style: TextStyleManager.black_35_b
+    );
   }
 
   TextSpan _buildCommonText(String text, bool isDetail) {

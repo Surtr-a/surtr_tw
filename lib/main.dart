@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         home: SplashPage(),
         initialBinding: SplashBinding(),
         theme: ThemeData(
-          appBarTheme: AppBarTheme(elevation: 0),
+          cursorColor: CustomColor.TBlue,
           primaryColor: Colors.white,
           accentColor: CustomColor.TBlue,
           unselectedWidgetColor: Colors.grey,

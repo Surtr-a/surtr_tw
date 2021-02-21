@@ -23,13 +23,15 @@ class Body extends StatelessWidget {
                 ),
                 controller: _.refreshController,
                 onRefresh: _.onRefresh,
-                child: ListView.builder(
+                child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                           onTap: () => Get.toNamed(Routes.TWEET_DETAIL,
                               arguments: _.homeTimeline[index]),
-                          child: TweetListTile(_.homeTimeline[index],
-                              index == 0, false));
+                          child: TweetListTile(_.homeTimeline[index], false,));
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Divider();
                     },
                     itemCount: _.homeTimeline.length),
               ),

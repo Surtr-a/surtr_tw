@@ -9,9 +9,13 @@ class TextStyleManager {
 
   static const TextStyle grey_15 = const TextStyle(height: 1.4, color: const Color(0xFF72787C), fontSize: 14);
 
+  static const TextStyle grey_15_b = const TextStyle(height: 1.4, color: const Color(0xFF72787C), fontSize: 14, fontWeight: FontWeight.bold);
+
   static const TextStyle grey_35 = const TextStyle(height: 1.4, color: const Color(0xFF72787C), fontSize: 16);
 
   static const TextStyle grey_35_s = const TextStyle(height: 1.4, color: const Color(0xFF72787C), fontSize: 16, fontWeight: FontWeight.w400);
+
+  static const TextStyle grey_55_b = const TextStyle(height: 1.4, color: const Color(0xFF72787C), fontSize: 18, fontWeight: FontWeight.bold);
 
   static const TextStyle black_23 = const TextStyle(height: 1.2, color: const Color(0xFF13171A), fontSize: 16, fontWeight: FontWeight.w400);
 
