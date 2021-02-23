@@ -22,7 +22,6 @@ class SearchController extends GetxController {
   }
 
   onRefresh() async {
-    _log.fine('refresh---------------------------->$query');
     var response = await _twitterRepository.searchTweets(q: query, count: 40);
     if (response == null) {
       refreshController.refreshFailed();

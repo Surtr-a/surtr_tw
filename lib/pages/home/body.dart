@@ -25,10 +25,7 @@ class Body extends StatelessWidget {
                 onRefresh: _.onRefresh,
                 child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                          onTap: () => Get.toNamed(Routes.TWEET_DETAIL,
-                              arguments: _.homeTimeline[index]),
-                          child: TweetListTile(_.homeTimeline[index], false,));
+                      return TweetListTile(_.homeTimeline[index], false,);
                     },
                     separatorBuilder: (BuildContext context, int index) {
                       return Divider();

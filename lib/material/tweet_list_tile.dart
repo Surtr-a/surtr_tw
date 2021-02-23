@@ -4,12 +4,15 @@ import 'dart:ffi';
 
 import 'package:dart_twitter_api/api/tweets/data/tweet.dart';
 import 'package:dart_twitter_api/api/users/data/user.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
+import 'package:surtr_tw/components/app_routes.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
 import 'package:surtr_tw/pages/home/simple_list_tile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final Logger _log = Logger('HomeTimelineTile');
 
@@ -62,30 +65,35 @@ class TweetListTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
             ),
           )
-        : Padding(
-          padding: EdgeInsets.fromLTRB(12, 4, 4, 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Column(children: [_typeIcon, _headImage]),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _typeWord,
-                      _title,
-                      if (replyScreenName != null) _target,
-                      _contentText,
-                      _media,
-                      _options
-                    ],
+        : InkWell(
+          highlightColor: CustomColor.sGrey,
+          radius: 0,
+          onTap: () => Get.toNamed(Routes.TWEET_DETAIL, arguments: tweet, preventDuplicates: false),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(12, 4, 4, 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Column(children: [_typeIcon, _headImage]),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _typeWord,
+                        _title,
+                        if (replyScreenName != null) _target,
+                        _contentText,
+                        _media,
+                        _options
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         );
   }
@@ -278,6 +286,8 @@ class TweetListTile extends StatelessWidget {
 
     // 最后标记的 index
     lastMark = 0;
+    // built url index
+    int urlIndex = 0;
     var spanList = List<TextSpan>();
     if (sortedKey.length != 0) {
       for (int index in sortedKey) {
@@ -295,7 +305,8 @@ class TweetListTile extends StatelessWidget {
             break;
           case Hyperlinks.url:
             spanList.add(_buildUrlText(
-                fullText.substring(index, lastMark = urlQueue.removeFirst()), isDetail));
+                fullText.substring(index, lastMark = urlQueue.removeFirst()), isDetail, sourceTweet.entities.urls[urlIndex].url));
+            ++urlIndex;
             break;
           case Hyperlinks.keyword:
             spanList.add(_buildKeywordText(fullText.substring(index, lastMark = keywordQueue.removeFirst())));
@@ -330,10 +341,18 @@ class TweetListTile extends StatelessWidget {
     );
   }
 
-  TextSpan _buildUrlText(String text, bool isDetail) {
+  TextSpan _buildUrlText(String text, bool isDetail, String sourceUrl) {
     return TextSpan(
       text: text,
       style: isDetail ? TextStyleManager.blue_83 : TextStyleManager.blue_23,
+      recognizer: TapGestureRecognizer()
+        ..onTap = () async {
+          if (await canLaunch(sourceUrl)) {
+            await launch(sourceUrl);
+          } else {
+            _log.warning('Could not launch $sourceUrl');
+          }
+        }
     );
   }
 
@@ -341,6 +360,10 @@ class TweetListTile extends StatelessWidget {
     return TextSpan(
       text: text,
       style: isDetail ? TextStyleManager.blue_83 : TextStyleManager.blue_23,
+      recognizer: TapGestureRecognizer()
+        ..onTap = () {
+          Get.toNamed(Routes.SEARCH, arguments: text);
+        }
     );
   }
 
@@ -488,29 +511,23 @@ class TweetListTile extends StatelessWidget {
             ),
             SimpleListTile(
               leading: Icon(Icons.sentiment_dissatisfied_rounded),
-              title: Text(
-                'Not interesting in this Tweet',
-                style: TextStyleManager.black_47,
-              ),
+              title: 'Not interesting in this Tweet',
             ),
             SimpleListTile(
               leading: Icon(Icons.cancel_outlined),
-              title: Text('Unfollow @${user.screenName}',
-                  style: TextStyleManager.black_47),
+              title: 'Unfollow @${user.screenName}',
             ),
             SimpleListTile(
               leading: Icon(Icons.volume_off_outlined),
-              title: Text('Mute @${user.screenName}',
-                  style: TextStyleManager.black_47),
+              title: 'Mute @${user.screenName}',
             ),
             SimpleListTile(
               leading: Icon(Icons.block),
-              title: Text('Block @${user.screenName}',
-                  style: TextStyleManager.black_47),
+              title: 'Block @${user.screenName}',
             ),
             SimpleListTile(
               leading: Icon(Icons.flag_outlined),
-              title: Text('Report Tweet', style: TextStyleManager.black_47),
+              title: 'Report Tweet',
             ),
           ],
         ),

@@ -6,7 +6,7 @@ import 'package:surtr_tw/bindings/splash_binding.dart';
 import 'package:surtr_tw/bindings/tweet_detail_binding.dart';
 import 'package:surtr_tw/components/app_routes.dart';
 import 'package:surtr_tw/pages/detail/page_tweet_detail.dart';
-import 'package:surtr_tw/pages/page_main.dart';
+import 'package:surtr_tw/pages/main/page_main.dart';
 import 'package:surtr_tw/pages/search/page_search.dart';
 import 'package:surtr_tw/pages/splash/page_splash.dart';
 

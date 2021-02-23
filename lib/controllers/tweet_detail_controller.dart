@@ -19,9 +19,11 @@ class TweetDetailController extends GetxController {
   void onInit() {
     super.onInit();
     _twitterRepository.loadReplies(tweet, _lastResult).then((value) {
-      replies.addAll(value.replies);
-      _lastResult = value;
-      update();
+      if (value != null && value.replies.isNotEmpty) {
+        replies.addAll(value.replies);
+        _lastResult = value;
+        update();
+      }
     });
   }
 }

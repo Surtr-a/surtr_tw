@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:surtr_tw/components/utils/color.dart';
+import 'package:surtr_tw/components/utils/text_style.dart';
 import 'package:surtr_tw/controllers/main_controller.dart';
 import 'package:surtr_tw/material/drawer.dart';
 import 'package:surtr_tw/pages/home/page_home.dart';
+import 'package:surtr_tw/pages/main/drawer.dart';
 import 'package:surtr_tw/pages/message/page_messages.dart';
 import 'package:surtr_tw/pages/notification/page_notifications.dart';
 import 'package:surtr_tw/pages/trends/page_trends.dart';
@@ -28,11 +30,7 @@ class MainPage extends GetView<MainController> {
             ),
           ),
           bottomNavigationBar: _buildBottomNavBar,
-          drawer: FlexibleDrawer(
-            child: ListView(
-              children: [Text('sss')],
-            ),
-          ),
+          drawer: _drawer,
         ));
   }
 
@@ -54,11 +52,14 @@ class MainPage extends GetView<MainController> {
             label: 'Messages', icon: Icon(Icons.email_outlined)),
       ],
       onTap: (index) {
-        // if (controller.currentIndex != index) {
-        //   controller.changeIndex(index);
-        // }
         controller.currentIndex.value = index;
       },
+    );
+  }
+
+  get _drawer {
+    return FlexibleDrawer(
+      child: MyDrawer(),
     );
   }
 }
