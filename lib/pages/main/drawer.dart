@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:surtr_tw/components/app_routes.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:surtr_tw/pages/home/simple_list_tile.dart';
@@ -50,16 +51,19 @@ class _MyDrawerState extends State<MyDrawer> with SingleTickerProviderStateMixin
     return Container(
       padding: EdgeInsets.fromLTRB(24, 12, 16, 12),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: .6, color: CustomColor.DivGrey))
+          border: Border(bottom: BorderSide(width: .6, color: CustomColor.divGrey))
       ),
       child: Column(
         children: [
-          SizedBox(
-              width: 60,
-              height: 60,
-              child: CircleAvatar(
-                backgroundColor: Colors.cyan,
-              )),
+          GestureDetector(
+            onTap: () => Get.toNamed(Routes.PERSONAL),
+            child: SizedBox(
+                width: 60,
+                height: 60,
+                child: CircleAvatar(
+                  backgroundColor: Colors.cyan,
+                )),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -118,7 +122,7 @@ class _MyDrawerState extends State<MyDrawer> with SingleTickerProviderStateMixin
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 child: Text(
                   'Create a new account',
-                  style: TextStyleManager.blue_23,
+                  style: TextStyleManager.blue_23.copyWith(color: Colors.blue),
                 ),
               ),
               Padding(
@@ -126,7 +130,7 @@ class _MyDrawerState extends State<MyDrawer> with SingleTickerProviderStateMixin
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 child: Text(
                   'Add an existing account',
-                  style: TextStyleManager.blue_23,
+                  style: TextStyleManager.blue_23.copyWith(color: Colors.blue),
                 ),
               )
             ],
@@ -183,7 +187,7 @@ class _MyDrawerState extends State<MyDrawer> with SingleTickerProviderStateMixin
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-              border: Border(top: BorderSide(width: .6, color: CustomColor.DivGrey))
+              border: Border(top: BorderSide(width: .6, color: CustomColor.divGrey))
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -498,7 +498,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 1,
-          shadowColor: CustomColor.DivGrey,
+          shadowColor: CustomColor.divGrey,
           backgroundColor: theme.primaryColor,
           iconTheme: theme.primaryIconTheme,
           textTheme: theme.primaryTextTheme,

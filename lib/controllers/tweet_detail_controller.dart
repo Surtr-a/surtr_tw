@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:surtr_tw/repositories/twitter_repository.dart';
 
-import '../twitter_api.dart';
+import '../components/providers/twitter_api.dart';
 
 final Logger _log = Logger('TweetDetailController');
 

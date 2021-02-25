@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:surtr_tw/bindings/splash_binding.dart';
+import 'package:surtr_tw/bindings/login_binding.dart';
 import 'package:surtr_tw/components/app_pages.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
-import 'package:surtr_tw/dependency_injection.dart';
-import 'package:surtr_tw/pages/splash/page_splash.dart';
+import 'package:surtr_tw/components/dependency_injection.dart';
+import 'package:surtr_tw/pages/login/page_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,8 +38,8 @@ class MyApp extends StatelessWidget {
         title: 'SurTW',
         initialRoute: '/',
         getPages: pages,
-        home: SplashPage(),
-        initialBinding: SplashBinding(),
+        home: LoginPage(),
+        initialBinding: LoginBinding(),
         theme: ThemeData(
           cursorColor: CustomColor.TBlue,
           primaryColor: Colors.white,
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
           unselectedWidgetColor: Colors.grey,
           highlightColor: CustomColor.highlightBlue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          dividerColor: CustomColor.DivGrey,
+          dividerColor: CustomColor.divGrey,
           dividerTheme: DividerThemeData(space: .6, thickness: .6)
         ),
       ),

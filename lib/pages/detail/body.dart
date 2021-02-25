@@ -20,7 +20,7 @@ class Body extends GetView<TweetDetailController> {
                         decoration: BoxDecoration(
                             border: Border(
                                 bottom: BorderSide(
-                                    width: .6, color: CustomColor.DivGrey))),
+                                    width: .6, color: CustomColor.divGrey))),
                         child: TweetListTile(_.tweet, true,))),
                 _.replies.length == 0
                     ? SliverToBoxAdapter(child: Loading(),)
@@ -29,7 +29,7 @@ class Body extends GetView<TweetDetailController> {
                             (BuildContext context, int index) {
                         return Container(
                           decoration: BoxDecoration(
-                            border: Border(bottom: BorderSide(width: .6, color: CustomColor.DivGrey))
+                            border: Border(bottom: BorderSide(width: .6, color: CustomColor.divGrey))
                           ),
                           child: TweetListTile(
                               _.replies[index], false, replyScreenName: _.replies[index].inReplyToScreenName,),

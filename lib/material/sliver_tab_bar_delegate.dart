@@ -14,7 +14,7 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
-              bottom: BorderSide(width: 0.6, color: CustomColor.DivGrey))),
+              bottom: BorderSide(width: 0.6, color: CustomColor.divGrey))),
     );
   }
 

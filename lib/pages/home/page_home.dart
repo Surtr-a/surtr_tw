@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
             _appBar,
             SliverToBoxAdapter(
                 child: Divider(
-                    color: CustomColor.DivGrey, thickness: .6, height: .6))
+                    color: CustomColor.divGrey, thickness: .6, height: .6))
           ];
         },
         body: Body(),

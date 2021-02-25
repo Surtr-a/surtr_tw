@@ -23,7 +23,7 @@ class MainPage extends GetView<MainController> {
           body: Container(
             decoration: BoxDecoration(
                 border: Border(
-                    bottom: BorderSide(width: .6, color: CustomColor.DivGrey))),
+                    bottom: BorderSide(width: .6, color: CustomColor.divGrey))),
             child: IndexedStack(
               index: controller.currentIndex.value,
               children: _children,

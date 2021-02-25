@@ -33,7 +33,7 @@ class Body extends StatelessWidget {
                         decoration: BoxDecoration(
                             border: Border(
                                 bottom: BorderSide(
-                                    width: .6, color: CustomColor.DivGrey)),
+                                    width: .6, color: CustomColor.divGrey)),
                             color: Colors.white),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +99,7 @@ class _SliverTitleDelegate extends SliverPersistentHeaderDelegate {
         border: Border(
           bottom: BorderSide(
             width: .6,
-            color: CustomColor.DivGrey
+            color: CustomColor.divGrey
           )
         )
       ),

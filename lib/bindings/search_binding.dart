@@ -9,6 +9,6 @@ class SearchBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => TwitterRepository());
-    Get.create(() => SearchController());
+    Get.create(() => SearchController(), permanent: false);
   }
 }

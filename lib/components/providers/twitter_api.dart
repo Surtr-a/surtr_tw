@@ -2,7 +2,7 @@ import 'package:dart_twitter_api/api/tweets/tweet_search_service.dart';
 import 'package:dart_twitter_api/twitter_api.dart' as api;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:surtr_tw/app_config.dart';
+import 'package:surtr_tw/components/providers/app_config.dart';
 
 class TwitterApi extends GetxService {
   api.TwitterApi init() {
