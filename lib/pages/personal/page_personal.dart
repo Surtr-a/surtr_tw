@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
+import 'package:surtr_tw/material/icon_button_without_padding.dart';
 
 class PersonalPage extends StatelessWidget {
   @override
@@ -20,23 +21,20 @@ class PersonalPage extends StatelessWidget {
           Text('4 Tweets', style: TextStyleManager.black_23.copyWith(color: Colors.white),)
         ],
       ),
-      leading: Container(
-        decoration: BoxDecoration(
-            color: CustomColor.sBlack,
-            borderRadius: BorderRadius.all(Radius.circular(200))),
-        child: IconButton(
-            icon: Icon(
-              Icons.arrow_back_outlined,
-              color: Colors.white,
-            ),
-            onPressed: null),
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back_outlined,
+          color: Colors.white,
+        ),
+        onPressed: () {},
+        constraints: BoxConstraints(minWidth: 0, minHeight: 0),
       ),
       actions: [
         Container(
           decoration: BoxDecoration(
               color: CustomColor.sBlack,
               borderRadius: BorderRadius.all(Radius.circular(200))),
-          child: IconButton(
+          child: IconButtonWithoutPadding(
               icon: Icon(
                 Icons.more_vert,
                 color: Colors.white,

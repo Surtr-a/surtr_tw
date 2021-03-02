@@ -11,19 +11,29 @@ import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:surtr_tw/components/app_routes.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
+import 'package:surtr_tw/controllers/home_controller.dart';
 import 'package:surtr_tw/pages/home/simple_list_tile.dart';
+import 'package:surtr_tw/repositories/twitter_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final Logger _log = Logger('HomeTimelineTile');
 
 enum Hyperlinks { mention, tag, url, keyword }
 
+typedef GestureTapCallback = void Function();
+
+// ignore: must_be_immutable
 class TweetListTile extends StatelessWidget {
   TweetListTile(this.tweet, this.isDetail, {this.replyScreenName, this.query})
       : isRetweeted = tweet.retweetedStatus != null,
         isQuoted = tweet.isQuoteStatus,
         sourceTweet =
-            tweet.retweetedStatus == null ? tweet : tweet.retweetedStatus;
+            tweet.retweetedStatus == null ? tweet : tweet.retweetedStatus {
+    retweeted = sourceTweet.retweeted.obs;
+    favorited = sourceTweet.favorited.obs;
+    retweetCount = sourceTweet.retweetCount.obs;
+    favoriteCount = sourceTweet.favoriteCount.obs;
+  }
 
   final Tweet tweet;
   final Tweet sourceTweet;
@@ -32,9 +42,47 @@ class TweetListTile extends StatelessWidget {
   final bool isDetail;
   final String replyScreenName;
   final String query;
+  RxBool retweeted;
+  RxBool favorited;
+  RxInt retweetCount;
+  RxInt favoriteCount;
 
   @override
   Widget build(BuildContext context) {
+    Function _updateHomeTimeline = (Tweet newTweet) {
+      if (newTweet != null) {
+        // Get.find<HomeController>().updateHomeTimeline(newTweet, isRetweeted);
+      }
+    };
+
+    GestureTapCallback onRetweetChange = () {
+      if (retweeted.value) {
+        retweeted.value = false;
+        --retweetCount.value;
+        Get.find<TwitterRepository>().unretweet(sourceTweet.idStr).then(_updateHomeTimeline);
+      } else {
+        retweeted.value = true;
+        ++retweetCount.value;
+        Get.find<TwitterRepository>().retweet(sourceTweet.idStr).then(_updateHomeTimeline);
+      }
+    };
+
+    GestureTapCallback onFavoriteChange = () {
+      if (favorited.value) {
+        favorited.value = false;
+        --favoriteCount.value;
+        Get.find<TwitterRepository>()
+            .destroyFavorites(sourceTweet.idStr)
+            .then(_updateHomeTimeline);
+      } else {
+        favorited.value = true;
+        ++favoriteCount.value;
+        Get.find<TwitterRepository>()
+            .createFavorites(sourceTweet.idStr)
+            .then(_updateHomeTimeline);
+      }
+    };
+
     return isDetail
         ? Padding(
             padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -59,7 +107,7 @@ class TweetListTile extends StatelessWidget {
                 Divider(indent: 4, endIndent: 4, thickness: .6, height: 20,),
                 _shareData,
                 Divider(indent: 4, endIndent: 4, thickness: .6, height: 20,),
-                _shareIcons,
+                _shareIcons(onRetweetChange, onFavoriteChange),
               ],
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -87,7 +135,7 @@ class TweetListTile extends StatelessWidget {
                         if (replyScreenName != null) _target,
                         _contentText,
                         _media,
-                        _options
+                        _options(onRetweetChange, onFavoriteChange)
                       ],
                     ),
                   ),
@@ -107,12 +155,24 @@ class TweetListTile extends StatelessWidget {
     ), overflow: TextOverflow.ellipsis, maxLines: 1,);
   }
 
-  Widget get _shareIcons {
+  Widget _shareIcons(GestureTapCallback onRetweetChange, GestureTapCallback onFavoriteChange) {
     return Row(
       children: [
         Icon(Icons.mode_comment_outlined, size: 24, color: Colors.grey),
-        Icon(Icons.repeat_outlined, size: 24, color: Colors.grey),
-        Icon(Icons.favorite_outline, size: 24, color: Colors.grey),
+        Obx(() => GestureDetector(
+            onTap: onRetweetChange,
+            child: Icon(Icons.repeat_outlined,
+                size: 24,
+                color: retweeted.value
+                    ? CustomColor.retweetedGreen
+                    : Colors.grey))),
+        Obx(() => GestureDetector(
+          onTap: onFavoriteChange,
+          child: Icon(
+              favorited.value ? Icons.favorite : Icons.favorite_outline,
+              size: 24,
+              color: favorited.value ? CustomColor.favoriteRed : Colors.grey),
+        )),
         Icon(Icons.share_outlined, size: 24, color: Colors.grey)
       ],
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -120,16 +180,16 @@ class TweetListTile extends StatelessWidget {
   }
 
   Widget get _shareData {
-    return Text.rich(TextSpan(
-      children: [
-        TextSpan(text: sourceTweet.retweetCount == null ? '0' : sourceTweet.retweetCount.toString(), style: TextStyleManager.black_35_b),
-        TextSpan(text: ' Retweets   ', style: TextStyleManager.grey_35),
-        TextSpan(text: sourceTweet.quoteCount == null ? '0' : sourceTweet.quoteCount.toString(), style: TextStyleManager.black_35_b),
-        TextSpan(text: ' Quote Tweets   ', style: TextStyleManager.grey_35),
-        TextSpan(text: sourceTweet.favoriteCount == null ? '0' : sourceTweet.favoriteCount.toString(), style: TextStyleManager.black_35_b),
-        TextSpan(text: ' Likes   ', style: TextStyleManager.grey_35),
-      ]
-    ));
+    return Obx(() => Text.rich(TextSpan(
+        children: [
+          TextSpan(text: retweetCount.value.toString(), style: TextStyleManager.black_35_b),
+          TextSpan(text: ' Retweets   ', style: TextStyleManager.grey_35),
+          TextSpan(text: sourceTweet.quoteCount == null ? '0' : sourceTweet.quoteCount.toString(), style: TextStyleManager.black_35_b),
+          TextSpan(text: ' Quote Tweets   ', style: TextStyleManager.grey_35),
+          TextSpan(text: favoriteCount.value.toString(), style: TextStyleManager.black_35_b),
+          TextSpan(text: ' Likes   ', style: TextStyleManager.grey_35),
+        ]
+    )));
   }
 
   Widget get _time {
@@ -387,19 +447,19 @@ class TweetListTile extends StatelessWidget {
       return Container();
   }
 
-  Widget get _options {
+  Widget _options(GestureTapCallback onRetweetChange, GestureTapCallback onFavoriteChange) {
     return IconTheme(
       data: IconThemeData(color: Colors.grey, size: 18),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildOptionItem(
-              Icons.mode_comment_outlined, sourceTweet.replyCount.toString()),
-          _buildOptionItem(
-              Icons.repeat_outlined, sourceTweet.retweetCount.toString()),
-          _buildOptionItem(
-              Icons.favorite_outline, sourceTweet.favoriteCount.toString()),
-          _buildOptionItem(Icons.share_outlined, ''),
+              Icons.mode_comment_outlined, sourceTweet.replyCount.toString(), () {}),
+          _buildRetweetedOptionItem(
+              retweeted, retweetCount, onRetweetChange),
+          _buildFavoriteOptionItem(
+              favorited, favoriteCount, onFavoriteChange),
+          _buildOptionItem(Icons.share_outlined, '', () {}),
           SizedBox(
             width: 1,
           )
@@ -453,17 +513,70 @@ class TweetListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionItem(IconData icon, String num) {
-    return Row(
-      children: [
-        Padding(padding: EdgeInsets.all(4), child: Icon(icon)),
-        Padding(
-          padding: EdgeInsets.only(bottom: 2),
-          child:
-              Text(num == 'null' ? ' ' : num, style: TextStyleManager.grey_5),
-        )
-      ],
+  Widget _buildOptionItem(IconData icon, String num, GestureTapCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Padding(padding: EdgeInsets.all(4), child: Icon(icon,)),
+          Padding(
+            padding: EdgeInsets.only(bottom: 2),
+            child:
+            Text(num == 'null' ? ' ' : num, style: TextStyleManager.grey_5),
+          )
+        ],
+      ),
     );
+  }
+
+  Widget _buildFavoriteOptionItem(RxBool favorited, RxInt num, GestureTapCallback onTap) {
+    return Obx(() => GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(
+                    favorited.value ? Icons.favorite : Icons.favorite_outline,
+                    color: favorited.value ? CustomColor.favoriteRed : Colors.grey,
+                  )),
+              Padding(
+            padding: EdgeInsets.only(bottom: 2),
+            child:
+            Text(num.value == 0 ? ' ' : num.value.toString(),
+                    style: favorited.value
+                        ? TextStyleManager.grey_5
+                            .copyWith(color: CustomColor.favoriteRed)
+                        : TextStyleManager.grey_5),
+              )
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildRetweetedOptionItem(RxBool retweeted, RxInt num, GestureTapCallback onTap) {
+    return Obx(() => GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(
+                Icons.repeat_outlined,
+                color: retweeted.value ? CustomColor.retweetedGreen : Colors.grey,
+              )),
+          Padding(
+            padding: EdgeInsets.only(bottom: 2),
+            child:
+            Text(num.value == 0 ? ' ' : num.value.toString(),
+                style: retweeted.value
+                    ? TextStyleManager.grey_5
+                    .copyWith(color: CustomColor.retweetedGreen)
+                    : TextStyleManager.grey_5),
+          )
+        ],
+      ),
+    ));
   }
 
   Widget _buildHeadImage(String url) {

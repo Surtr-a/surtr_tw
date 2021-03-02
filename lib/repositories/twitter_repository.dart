@@ -4,16 +4,22 @@ import 'package:dart_twitter_api/twitter_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
-import 'package:surtr_tw/components/providers/twitter_api.dart';
+import 'package:surtr_tw/components/providers/replies_extension.dart';
 
 class TwitterRepository {
   static final Logger _log = Logger('TwitterRepository');
 
-  final api.TwitterApi _twitterApi = Get.find<api.TwitterApi>();
+  api.TwitterApi _twitterApi;
 
-  Future<List<api.Tweet>> homeTimeline() async {
+  TwitterRepository() {
+    updateApi();
+  }
+
+  void updateApi() => _twitterApi = Get.find<api.TwitterApi>();
+
+  Future<List<api.Tweet>> homeTimeline({String maxId}) async {
     return await _twitterApi.timelineService
-        .homeTimeline(count: 30, includeEntities: true, excludeReplies: false)
+        .homeTimeline(count: 30, includeEntities: true, excludeReplies: false, maxId: maxId)
         .catchError((e) => _log.severe(e.toString()));
   }
 
@@ -70,6 +76,31 @@ class TwitterRepository {
             userId: userId,
             screenName: screenName,
             includeEntities: includeEntities)
+        .catchError((e) => _log.severe(e.toString()));
+  }
+
+  Future<api.Tweet> createFavorites(String id) async {
+    return await _twitterApi.tweetService
+        .createFavorite(id: id, includeEntities: true)
+        .catchError((e) =>
+        _log.severe(e.toString()));
+  }
+
+  Future<api.Tweet> destroyFavorites(String id) async {
+    return await _twitterApi.tweetService
+        .destroyFavorite(id: id, includeEntities: true)
+        .catchError((e) => _log.severe(e.toString()));
+  }
+
+  Future<api.Tweet> retweet(String id) async {
+    return await _twitterApi.tweetService
+        .retweet(id: id,)
+        .catchError((e) => _log.severe(e.toString()));
+  }
+
+  Future<api.Tweet> unretweet(String id) async {
+    return await _twitterApi.tweetService
+        .unretweet(id: id)
         .catchError((e) => _log.severe(e.toString()));
   }
 }

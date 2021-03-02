@@ -14,10 +14,9 @@ class SearchController extends GetxController {
 
   List<Tweet> get result => _result;
 
-
   @override
-  void onInit() {
-    super.onInit();
+  void onReady() {
+    super.onReady();
     onRefresh();
   }
 

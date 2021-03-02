@@ -17,8 +17,8 @@ class TrendsController extends GetxController {
   List<TrendLocation> get trendLocations => _trendLocations;
 
   @override
-  void onInit() {
-    super.onInit();
+  void onReady() {
+    super.onReady();
     availableLocations();
   }
 

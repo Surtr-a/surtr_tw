@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
-import 'package:surtr_tw/components/app_routes.dart';
+import 'package:surtr_tw/components/providers/authentication_service.dart';
 import 'package:surtr_tw/components/utils/color.dart';
 
 final Logger _log = Logger('PageSplash');
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends GetView {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +35,8 @@ class LoginPage extends StatelessWidget {
                           minWidth: double.infinity,
                           color: CustomColor.TBlue,
                           shape: StadiumBorder(),
-                          onPressed: () {
-                            Get.offNamed(Routes.MAIN);
+                          onPressed: () async {
+                            await Get.find<Authentication>().login();
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 4),

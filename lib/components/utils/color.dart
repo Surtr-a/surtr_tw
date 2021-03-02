@@ -12,4 +12,8 @@ class CustomColor {
   static const Color sBlack = Color(0xFF07273C);
 
   static const Color dBlue = Color(0xFF0F507A);
+
+  static const Color favoriteRed = Color(0xFFC62053);
+
+  static const Color retweetedGreen = Color(0xFF16BF62);
 }

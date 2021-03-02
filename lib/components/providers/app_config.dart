@@ -19,10 +19,8 @@ class AppConfig {
       final YamlMap _yamlMap = loadYaml(_appConfigString);
 
       final AppConfigData _appConfigData = AppConfigData(
-          twitterConsumerKey: _yamlMap['twitter']['consumer_key'],
-          twitterConsumerSecret: _yamlMap['twitter']['consumer_secret'],
-          token: _yamlMap['default_token']['token'] ?? '',
-          tokenSecret: _yamlMap['default_token']['secret'] ?? '');
+          _yamlMap['twitter']['consumer_key'],
+          _yamlMap['twitter']['consumer_secret']);
 
       if (_appConfigData.invalidTwitterConfig) {
         throw Exception('Twitter api key or secret is empty.');
@@ -50,14 +48,8 @@ class AppConfig {
 class AppConfigData {
   final String twitterConsumerKey;
   final String twitterConsumerSecret;
-  String token;
-  String tokenSecret;
 
-  AppConfigData(
-      {@required this.twitterConsumerKey,
-      @required this.twitterConsumerSecret,
-      this.token,
-      this.tokenSecret});
+  AppConfigData(this.twitterConsumerKey, this.twitterConsumerSecret);
 
   bool get invalidTwitterConfig =>
       twitterConsumerKey?.isEmpty == true ||

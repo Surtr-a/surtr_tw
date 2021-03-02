@@ -23,6 +23,8 @@ class Body extends StatelessWidget {
                 ),
                 controller: _.refreshController,
                 onRefresh: _.onRefresh,
+                enablePullUp: true,
+                onLoading: _.onLoadMore,
                 child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
                       return TweetListTile(_.homeTimeline[index], false,);

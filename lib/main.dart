@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:surtr_tw/bindings/login_binding.dart';
+import 'package:surtr_tw/bindings/main_binding.dart';
 import 'package:surtr_tw/components/app_pages.dart';
+import 'package:surtr_tw/components/app_routes.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
 import 'package:surtr_tw/components/dependency_injection.dart';
-import 'package:surtr_tw/pages/login/page_login.dart';
+import 'package:surtr_tw/pages/main/page_main.dart';
+import 'package:surtr_tw/repositories/twitter_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,8 +40,8 @@ class MyApp extends StatelessWidget {
         title: 'SurTW',
         initialRoute: '/',
         getPages: pages,
-        home: LoginPage(),
-        initialBinding: LoginBinding(),
+        home: MainPage(),
+        initialBinding: MainBinding(),
         theme: ThemeData(
           cursorColor: CustomColor.TBlue,
           primaryColor: Colors.white,
@@ -48,8 +50,18 @@ class MyApp extends StatelessWidget {
           highlightColor: CustomColor.highlightBlue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           dividerColor: CustomColor.divGrey,
-          dividerTheme: DividerThemeData(space: .6, thickness: .6)
+          dividerTheme: DividerThemeData(space: .6, thickness: .6),
+          buttonTheme: ButtonThemeData(
+            minWidth: 0,
+            height: 0,
+            padding: EdgeInsets.zero
+          )
         ),
+        // routingCallback: (routing) {
+        //   if (routing.previous == Routes.LOGIN) {
+        //     Get.find<TwitterRepository>().updateApi();
+        //   }
+        // },
       ),
     );
   }

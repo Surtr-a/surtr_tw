@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:surtr_tw/components/app_routes.dart';
+import 'package:surtr_tw/components/providers/authentication_service.dart';
 import 'package:surtr_tw/components/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:surtr_tw/pages/home/simple_list_tile.dart';
@@ -120,9 +121,12 @@ class _MyDrawerState extends State<MyDrawer> with SingleTickerProviderStateMixin
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                child: Text(
-                  'Create a new account',
-                  style: TextStyleManager.blue_23.copyWith(color: Colors.blue),
+                child: GestureDetector(
+                  onTap: () => Get.find<Authentication>().logout(),
+                  child: Text(
+                    'Create a new account',
+                    style: TextStyleManager.blue_23.copyWith(color: Colors.blue),
+                  ),
                 ),
               ),
               Padding(
