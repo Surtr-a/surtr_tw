@@ -1,16 +1,13 @@
-# surtr_tw
+# surtr_tw 
 
-A new Flutter project.
 
-## Getting Started
+Flutter版[Twitter](https://twitter.com).
 
-This project is a starting point for a Flutter application.
+Imitation of [Twitter](https://twitter.com) with GetX.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Denpendencies
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* [**Twitter API**](https://developer.twitter.com/en/docs/twitter-api)
+* twitter api server： [**twitter_api**](https://github.com/robertodoering/twitter_api)
+* login plugin:  [**flutter_twitter_login**](https://github.com/roughike/flutter_twitter_login)
